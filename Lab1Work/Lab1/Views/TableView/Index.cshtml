@@ -1,0 +1,46 @@
+﻿@*<form asp-action="Index" asp-controller="Form">
+    <label asp-for="TableFieldsNumber"></label>
+    <input asp-for="TableFieldsNumber" placeholder="Some field value" />
+    <input type="submit" value="create" />
+</form>*@
+
+@model TableEditModel
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+</head>
+
+<form asp-action="EditReadyModel" asp-controller="EditTable">
+    <table class="table thead-dark table-hover">
+        <tr>
+            @for (int i = 0; i < Model.FieldsInfo.Count; i++)
+            {
+                <td>
+                    @if (Model.FieldsInfo[i].IsPrimaryKey)
+                    {
+                        <label>@Model.FieldsInfo[i].FieldName  *</label>
+                    }
+                    else
+                    {
+                        <label>@Model.FieldsInfo[i].FieldName</label>
+                    }
+                </td>
+            }
+        </tr>
+        @for (int i = 0; i < Model.Table.Count; i++)
+        {
+            <tr>
+                @for (int j = 0; j < Model.FieldsInfo.Count; j++)
+                {
+                    <td>
+                        <label>@Model.Table[i][j]</label>
+                    </td>
+                }
+            </tr>
+        }
+    </table>
+    <button type="submit">Edit table</button>
+</form>

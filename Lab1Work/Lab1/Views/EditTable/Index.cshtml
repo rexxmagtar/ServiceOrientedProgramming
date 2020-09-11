@@ -1,0 +1,73 @@
+﻿@*<form asp-action="Index" asp-controller="Form">
+        <label asp-for="TableFieldsNumber"></label>
+        <input asp-for="TableFieldsNumber" placeholder="Some field value" />
+        <input type="submit" value="create" />
+    </form>*@
+
+
+@*<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css"/>
+</head>*@
+
+@model TableEditModel
+
+
+<form asp-controller="EditTable" method="post">
+    <table class="table thead-dark table-hover">
+        <tr>
+            @for (int i = 0; i < Model.FieldsInfo.Count; i++)
+            {
+                <td>
+                    <label asp-for="@Model.FieldsInfo[i].FieldName">@Model.FieldsInfo[i].FieldName</label>
+                </td>
+                <input type="hidden" asp-for="@Model.FieldsInfo[i].FieldType"/>
+                <input type="hidden" asp-for="@Model.FieldsInfo[i].FieldName"/>
+
+            }
+        </tr>
+        @for (int k = 0; k < Model.Table.Count; k++)
+        {
+            <tr>
+                @for (int j = 0; j < Model.FieldsInfo.Count; j++)
+                {
+                    <td>
+                        @switch (Model.FieldsInfo[j].FieldType)
+                        {
+                            case TableCreateModel.allowedDataType.text:
+                            {
+                                <input asp-for="@Model.Table[k][j]" value="@Model.Table[k][j]">
+                                break;
+                            }
+                            case TableCreateModel.allowedDataType.intergerNumber:
+                            {
+                                <input type="number" asp-for="@Model.Table[k][j]" value="@int.Parse(Model.Table[k][j].Length == 0 ? 0.ToString() : Model.Table[k][j])">
+                                break;
+                            }
+                            case TableCreateModel.allowedDataType.floatNumber:
+                            {
+                                <input type="number" step="0.1" asp-for="@Model.Table[k][j]" value="@float.Parse(Model.Table[k][j].Length == 0 ? 0.ToString() : Model.Table[k][j])">
+                                break;
+                            }
+                            case TableCreateModel.allowedDataType.boolean:
+                            {
+                                <input type="checkbox" asp-for="@Model.Table[k][j]">
+                                break;
+                            }
+                        }
+                    </td>
+                }
+            </tr>
+        }
+        <tr>
+            <td>
+                <form asp-controller="EditTable" asp-action="AddRowToModel">
+                    <button type="submit" asp-action="AddRowToModel">Add</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <button type="submit" asp-action="FinishEditing">Finish</button>
+</form>

@@ -1,0 +1,53 @@
+﻿@using System.Net
+@using Microsoft.AspNetCore.Http
+
+@model TableCreateModel
+
+@*<form asp-action="Index" asp-controller="Form">
+        <label asp-for="TableFieldsNumber"></label>
+        <input asp-for="TableFieldsNumber" placeholder="Some field value" />
+        <input type="submit" value="create" />
+    </form>*@
+
+@*<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+</head>*@
+
+<label>Number of fields: @Model.Fields.Count </label>
+<div>
+    <form  asp-controller="CreateTable" asp-action="CreateTable">
+        <table>
+            <tr>
+                <td> Field name </td>
+                <td> Field type </td>
+                <td> Is primary key </td>
+            </tr>
+            @for (int i = 0; i < (Model.Fields.Count); i++)
+            {
+                <tr>
+                    <td>
+                        <input asp-for="@Model.Fields[i].FieldName"/>
+                    </td>
+                    <td>
+                        <select asp-for="@Model.Fields[i].FieldType" asp-items="Model.types"></select>
+                    </td>
+                    <td>
+                        @if (@i == 0)
+                        {
+                            <input asp-for="@Model.Fields[i].IsPrimaryKey" type="radio" name="primaryField" value="@i" checked />
+                        }
+                        else
+                        {
+                            <input asp-for="@Model.Fields[i].IsPrimaryKey" type="radio" name="primaryField" value="@i" />
+                        }
+                    </td>
+                </tr>
+            }
+            
+        </table>
+        <button type="submit" value="create">confirm</button>
+    </form>
+</div>
