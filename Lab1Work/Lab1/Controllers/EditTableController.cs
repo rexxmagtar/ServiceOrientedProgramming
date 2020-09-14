@@ -47,7 +47,7 @@ namespace Lab1.Controllers
 
         public IActionResult EditSavedTable()
         {
-            DbTableModel model = GetModel(@"Data source=C:\BSU_Season5\ServiceOrientedProgramming\Lab1Work\Lab1\DB\data.db", "newTable");
+            DbTableModel model = SqliteDbConverter.GetModel(@"Data source=C:\BSU_Season5\ServiceOrientedProgramming\Lab1Work\Lab1\DB\data.db", "newTable");
 
             return EditReadyModel(model);
         }
@@ -136,65 +136,7 @@ namespace Lab1.Controllers
             return RedirectToAction("Index", "TableView");
         }
 
-        public DbTableModel GetModel(string connectionStr, string tableName)
-        {
-            using var con = new SQLiteConnection(connectionStr);
-            con.Open();
 
-            using var cmd = con.CreateCommand();
-
-            cmd.CommandText = $"SELECT * FROM {tableName}";
-
-
-            cmd.VerifyOnly();
-
-            SQLiteDataReader reader = cmd.ExecuteReader();
-
-            DbTableModel model = new DbTableModel();
-
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                model.FieldsInfo.Add(new DbTableModel.FieldInfo(reader.GetName(i), GetTypeFromString(reader.GetDataTypeName(i)), false));
-            }
-
-            while (reader.Read())
-            {
-                model.Table.Add(new List<string>());
-
-                for (int i = 0; i < reader.FieldCount; i++)
-                {
-                    if (model.FieldsInfo[i].FieldType == DbTableModel.allowedDataType.floatNumber)
-                    {
-                        model.Table[model.Table.Count - 1].Add(reader.GetFloat(i).ToString(CultureInfo.InvariantCulture));
-                    }
-                    else
-                    {
-                        model.Table[model.Table.Count - 1].Add(reader.GetValue(i).ToString());
-                    }
-                }
-            }
-
-            return model;
-        }
-
-        public static DbTableModel.allowedDataType GetTypeFromString(string type)
-        {
-            switch (type)
-            {
-                case "REAL":
-                {
-                    return DbTableModel.allowedDataType.floatNumber;
-                }
-                case "INTEGER":
-                {
-                    return DbTableModel.allowedDataType.intergerNumber;
-                }
-                default:
-                {
-                    return DbTableModel.allowedDataType.text;
-                }
-            }
-        }
     }
 }
 

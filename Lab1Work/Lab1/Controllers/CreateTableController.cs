@@ -18,7 +18,7 @@ namespace Lab1.Controllers
 
             for (int i = 0; i < numberOfFields; i++)
             {
-                tableCreateModel.Fields.Add(new TableCreateModel.Field($"field_{i}",TableCreateModel.allowedDataType.text,false));
+                tableCreateModel.Fields.Add(new DbTableModel.FieldInfo($"field_{i}",DbTableModel.allowedDataType.text,false));
             }
 
             return View("CreateTablePage",tableCreateModel);
@@ -40,7 +40,7 @@ namespace Lab1.Controllers
 
             for (int i = 0; i < model.Fields.Count; i++)
             {
-                fieldsStr += model.Fields[i].FieldName + " " + GetDbType(model.Fields[i].FieldType);
+                fieldsStr += model.Fields[i].FieldName + " " + SqliteDbConverter.GetDbType(model.Fields[i].FieldType);
                 
                 if (model.Fields[i].IsPrimaryKey)
                 {
@@ -67,23 +67,5 @@ namespace Lab1.Controllers
             return RedirectToAction("Index", "EditTable");
         }
 
-        public static string GetDbType(TableCreateModel.allowedDataType type)
-        {
-            switch (type)
-            {
-                case TableCreateModel.allowedDataType.floatNumber:
-                {
-                    return "REAL";
-                }
-                case TableCreateModel.allowedDataType.intergerNumber:
-                {
-                    return "INTEGER";
-                }
-                default:
-                {
-                    return "TEXT";
-                }
-            }
-        }
     }
 }
