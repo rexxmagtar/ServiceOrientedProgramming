@@ -6,6 +6,6 @@
 
 <form asp-controller="Form" asp-action="Index" method="post">
     <label for="tableFieldsNumber">Table fields number</label>
-    <input type="number" id="tableFieldsNumber" name="tableFieldsNumber"/>
+    <input type="number" id="tableFieldsNumber" name="tableFieldsNumber" value="1" min="1" required/>
     <input type="submit"/>
 </form>

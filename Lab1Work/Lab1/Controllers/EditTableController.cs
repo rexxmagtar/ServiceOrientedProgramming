@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -16,38 +17,47 @@ namespace Lab1.Controllers
         {
 
             TableCreateModel model = JsonSerializer.Deserialize(TempData["TableCreateModel"].ToString(), typeof(TableCreateModel)) as TableCreateModel;
-            TableEditModel editModel = new TableEditModel(model);
+            DbTableModel dbTableModel = new DbTableModel();
 
-            if (editModel.Table.Count == 0)
+            dbTableModel.FieldsInfo = new List<DbTableModel.FieldInfo>(model.Fields);
+
+            if (dbTableModel.Table.Count == 0)
             {
-                editModel.Table.Add(new List<string>());
-                for (int i = 0; i < editModel.FieldsInfo.Count; i++)
+                dbTableModel.Table.Add(new List<string>());
+                for (int i = 0; i < dbTableModel.FieldsInfo.Count; i++)
                 {
-                    if (editModel.FieldsInfo[i].FieldType == TableCreateModel.allowedDataType.boolean)
+                    if (dbTableModel.FieldsInfo[i].FieldType == DbTableModel.allowedDataType.boolean)
                     {
-                        editModel.Table[0].Add("False");
+                        dbTableModel.Table[0].Add("False");
                     }
                     else
                     {
-                        editModel.Table[0].Add("");
+                        dbTableModel.Table[0].Add("");
                     }
                 }
             }
 
-            return View(editModel);
+            return View(dbTableModel);
         }
 
-        public IActionResult EditReadyModel(TableEditModel model)
+        public IActionResult EditReadyModel(DbTableModel model)
         {
-            return View("Index",model);
+            return View("Index", model);
         }
 
-        public IActionResult AddRowToModel(TableEditModel model)
+        public IActionResult EditSavedTable()
+        {
+            DbTableModel model = GetModel(@"Data source=C:\BSU_Season5\ServiceOrientedProgramming\Lab1Work\Lab1\DB\data.db", "newTable");
+
+            return EditReadyModel(model);
+        }
+
+        public IActionResult AddRowToModel(DbTableModel model)
         {
             model.Table.Add(new List<string>());
             for (int i = 0; i < model.FieldsInfo.Count; i++)
             {
-                if (model.FieldsInfo[i].FieldType == TableCreateModel.allowedDataType.boolean)
+                if (model.FieldsInfo[i].FieldType == DbTableModel.allowedDataType.boolean)
                 {
                     model.Table[model.Table.Count - 1].Add("False");
                 }
@@ -59,7 +69,7 @@ namespace Lab1.Controllers
             return View("Index", model);
         }
 
-        public IActionResult FinishEditing(TableEditModel model)
+        public IActionResult FinishEditing(DbTableModel model)
         {
             string cs = @"Data source=C:\BSU_Season5\ServiceOrientedProgramming\Lab1Work\Lab1\DB\data.db";
 
@@ -72,9 +82,13 @@ namespace Lab1.Controllers
 
             string fieldsNames = "";
 
+            cmd.CommandText = $"DELETE FROM newTable";
+
+            cmd.ExecuteNonQuery();
+
             for (int i = 0; i < model.FieldsInfo.Count; i++)
             {
-                fieldsNames +=" " + model.FieldsInfo[i].FieldName;
+                fieldsNames += " " + model.FieldsInfo[i].FieldName;
 
                 if (i < model.FieldsInfo.Count - 1)
                 {
@@ -88,7 +102,7 @@ namespace Lab1.Controllers
 
                 for (int j = 0; j < model.Table[i].Count; j++)
                 {
-                    valuesStr +=" " + model.Table[i][j];
+                    valuesStr += " '" + model.Table[i][j] + "'";
 
                     if (j < model.Table[i].Count - 1)
                     {
@@ -103,6 +117,7 @@ namespace Lab1.Controllers
                 }
             }
 
+            
 
             cmd.CommandText = $"INSERT INTO newTable ({fieldsNames}) VALUES {valuesStr}";
 
@@ -117,10 +132,69 @@ namespace Lab1.Controllers
                 return Content(exception.ToString());
             }
 
-            TempData["tableModel"] = JsonSerializer.Serialize(model, typeof(TableEditModel));
-            return RedirectToAction("Index","TableView");
+            TempData["tableModel"] = JsonSerializer.Serialize(model, typeof(DbTableModel));
+            return RedirectToAction("Index", "TableView");
         }
 
+        public DbTableModel GetModel(string connectionStr, string tableName)
+        {
+            using var con = new SQLiteConnection(connectionStr);
+            con.Open();
 
+            using var cmd = con.CreateCommand();
+
+            cmd.CommandText = $"SELECT * FROM {tableName}";
+
+
+            cmd.VerifyOnly();
+
+            SQLiteDataReader reader = cmd.ExecuteReader();
+
+            DbTableModel model = new DbTableModel();
+
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                model.FieldsInfo.Add(new DbTableModel.FieldInfo(reader.GetName(i), GetTypeFromString(reader.GetDataTypeName(i)), false));
+            }
+
+            while (reader.Read())
+            {
+                model.Table.Add(new List<string>());
+
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    if (model.FieldsInfo[i].FieldType == DbTableModel.allowedDataType.floatNumber)
+                    {
+                        model.Table[model.Table.Count - 1].Add(reader.GetFloat(i).ToString(CultureInfo.InvariantCulture));
+                    }
+                    else
+                    {
+                        model.Table[model.Table.Count - 1].Add(reader.GetValue(i).ToString());
+                    }
+                }
+            }
+
+            return model;
+        }
+
+        public static DbTableModel.allowedDataType GetTypeFromString(string type)
+        {
+            switch (type)
+            {
+                case "REAL":
+                {
+                    return DbTableModel.allowedDataType.floatNumber;
+                }
+                case "INTEGER":
+                {
+                    return DbTableModel.allowedDataType.intergerNumber;
+                }
+                default:
+                {
+                    return DbTableModel.allowedDataType.text;
+                }
+            }
+        }
     }
 }
+

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Lab1.Models
+namespace Lab1
 {
-    public class TestModel
+    public class SqliteDbConverter
     {
-        public int test { get; set;}
     }
 }

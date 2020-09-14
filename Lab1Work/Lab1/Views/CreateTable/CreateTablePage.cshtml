@@ -9,17 +9,17 @@
         <input type="submit" value="create" />
     </form>*@
 
-@*<head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-</head>*@
+</head>
 
 <label>Number of fields: @Model.Fields.Count </label>
 <div>
     <form  asp-controller="CreateTable" asp-action="CreateTable">
-        <table>
+        <table class="table thead-dark table-hover">
             <tr>
                 <td> Field name </td>
                 <td> Field type </td>

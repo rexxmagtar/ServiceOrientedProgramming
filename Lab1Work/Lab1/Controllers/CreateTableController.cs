@@ -18,7 +18,7 @@ namespace Lab1.Controllers
 
             for (int i = 0; i < numberOfFields; i++)
             {
-                tableCreateModel.Fields.Add(new TableCreateModel.Field());
+                tableCreateModel.Fields.Add(new TableCreateModel.Field($"field_{i}",TableCreateModel.allowedDataType.text,false));
             }
 
             return View("CreateTablePage",tableCreateModel);

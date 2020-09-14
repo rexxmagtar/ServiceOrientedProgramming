@@ -13,7 +13,7 @@ namespace Lab1.Controllers
         public IActionResult Index()
         {
             
-            TableEditModel model = JsonSerializer.Deserialize(TempData["tableModel"].ToString(), typeof(TableEditModel)) as TableEditModel;
+            DbTableModel model = JsonSerializer.Deserialize(TempData["tableModel"].ToString(), typeof(DbTableModel)) as DbTableModel;
             return View(model);
         }
     }
